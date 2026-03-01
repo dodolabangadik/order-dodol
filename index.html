@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dodol Abang Adik</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Playfair+Display:wght@700&display=swap');
+        
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8f9fa; }
+        .title-font { font-family: 'Playfair Display', serif; color: #5d4037; }
+        
+        #map { height: 180px; border-radius: 1rem; border: 1px solid #e2e8f0; margin-top: 10px; }
+        input[type="number"]::-webkit-inner-spin-button { display: none; }
+        
+        .summary-box {
+            background-color: #f8f9fa;
+            border: 1px solid #c5c5c5;
+            border-radius: 1.5rem;
+        }
+
+        /* Header Image 2:1 Ratio */
+        .header-banner {
+            width: 100%;
+            
+            object-fit: cover;
+            /* Rounded top corners to match container */
+            border-top-left-radius: 2.5rem; 
+            border-top-right-radius: 2.5rem;
+        }
+    </style>
+</head>
+<body class="flex justify-center items-start min-h-screen p-4">
+
+    <div class="w-full max-w-md bg-white rounded-[2.5rem] shadow-xl overflow-hidden space-y-1">
+        
+        <img src="https://i.postimg.cc/mkBvKpVL/1.png" alt="Header Banner" class="header-banner">
+
+        <div class="p-8 space-y-6 pt-2">
+
+            <div class="space-y-1">
+                <label class="block font-bold text-gray-800">Nama:</label>
+                <input type="text" id="custName" class="w-full border border-gray-200 rounded-full px-4 py-2 outline-none focus:ring-2 ring-gray-100" placeholder="">
+            </div>
+
+            <div>
+                <div class="flex flex-col">
+                <P class="block font-bold text-gray-800">Perlukan penghantaran?</p>
+                <p class="text-[11px] text-gray-400 italic leading-tight mt-0.5">***Jika Ya, isi alamat penghantaran</p>
+            </div>
+            
+                <div class="bg-gray-50 rounded-2xl p-4 mt-2">
+                <div class="flex flex-col gap-2 ml-2">
+                    <label class="flex items-center gap-3">
+                        <input type="radio" name="deliveryOpt" value="ya" onchange="toggleMap(true)" class="w-4 h-4 accent-gray-600"> Ya
+                    </label>
+                    <label class="flex items-center gap-3">
+                        <input type="radio" name="deliveryOpt" value="tidak" onchange="toggleMap(false)" checked class="w-4 h-4 accent-gray-600"> Tidak
+                    </label>
+                </div>
+            </div> </div>
+
+            <div id="deliverySection" class="hidden space-y-3">
+                <label class="block font-bold text-gray-800">Nak antar kek mano ni?</label>
+                <button onclick="getLocation()" class="w-full bg-gray-600 text-white py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2">
+                    📍 Ambil lokasi saya
+                </button>
+                <input type="text" id="orderRemark" class="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm outline-none" placeholder="Remarks: no. rumah / arahan penghantaran">
+                <div id="map"></div>
+                
+            </div>
+
+            <div class="space-y-1">
+                <label class="block font-bold text-gray-800">Pilihan dodol:</label>
+                
+                <div class="bg-gray-50 rounded-2xl p-4 space-y-3">
+                    <div>
+                        <div>
+                        <div class="flex justify-between items-start">
+                            <span class="font-bold text-gray-800">1. Dodol Masak</span><span class="text-[11px] font-medium text-gray-600 mr-4">QTY</span>
+                        </div>
+                        
+                        <div class="ml-4 mt-1 space-y-2">
+                            <div class="flex justify-between items-center text-sm">
+                                <span>500 g</span>
+                                <div class="flex items-center gap-4">
+                                    <span>RM 27.00</span>
+                                    <input type="number" id="dodolMasak500g" data-name="Dodol Masak (500g)" data-price="27" class="qty-input w-12 border rounded text-center py-1" value="0" min="0" onchange="updatePrice()">
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span>1 kg</span>
+                                <div class="flex items-center gap-4">
+                                    <span>RM 50.00</span>
+                                    <input type="number" id="dodolMasak1kg" data-name="Dodol Masak (1kg)" data-price="50" class="qty-input w-12 border rounded text-center py-1" value="0" min="0" onchange="updatePrice()">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-start mt-2">
+                            <span class="font-bold text-gray-800">2. Dodol cair</span>
+                        </div>
+                        <div class="ml-4 mt-1 space-y-2">
+                            <div class="flex justify-between items-center text-sm">
+                                <span>500 g</span>
+                                <div class="flex items-center gap-4">
+                                    <span>RM 22.00</span>
+                                    <input type="number" id="dodolCair500g" data-name="Dodol Cair (500g)" data-price="22" class="qty-input w-12 border rounded text-center py-1" value="0" min="0" onchange="updatePrice()">
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span>1 kg</span>
+                                <div class="flex items-center gap-4">
+                                    <span>RM 40.00</span>
+                                    <input type="number" id="dodolCair1kg" data-name="Dodol Cair (1kg)" data-price="40" class="qty-input w-12 border rounded text-center py-1" value="0" min="0" onchange="updatePrice()">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <div class="pt-0 space-y-3">
+            <div id="summaryContainer" class="hidden bg-white-50 border border-gray-100 rounded-2xl p-4 mt-2 pt-2 space-y-2">
+                <h3 class="font-bold text-gray-900 text-base text-center pb-2 border-b border-gray-300"> Ringkasan Pesanan:</h3>
+                <div id="orderList" class="text-sm space-y-2 divide-y divide-gray-200/50">
+                    </div>
+            </div>
+
+            <div class="summary-box p-6 space-y-2">
+                <div class="flex justify-between text-gray-600 text-sm">
+                    <span class="font-medium">Subtotal:</span>
+                    <span id="foodTotal" class="font-medium">RM 0.00</span>
+                </div>
+                <div class="flex justify-between text-gray-600 text-sm">
+                    <span>Caj Penghantaran:</span>
+                    <span id="delText">RM 0.00</span>
+                </div>
+                <div class="pt-2 border-t border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xl font-bold text-gray-800">Total:</span>
+                        <span id="totalPrice" class="text-xl font-bold text-gray-900">RM 0.00</span>
+                    </div>
+                    <p class="text-[10px] text-red-600 italic mt-1 font-medium">*Pembayaran secara QR/online transfer sahaja</p>
+                </div>
+            </div>
+          
+            <button onclick="sendOrder()" class="w-full bg-emerald-500 text-white font-extrabold py-4 rounded-2xl shadow-xl active:scale-95 transition-all uppercase tracking-widest flex items-center justify-center">
+                Pesan Sekarang
+            </button>
+            </div>  
+        </div> 
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let map, marker, currentDist = 0, isDelivery = false;
+        const mcdCoords = [2.744066, 102.236290]; // GANTI LOKASI KEDAI ANDA DI SINI
+
+        function initApp() {
+            map = L.map('map', { attributionControl: false }).setView(mcdCoords, 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            marker = L.marker(mcdCoords, { draggable: true }).addTo(map);
+            marker.on('dragend', calculateDistance);
+        }
+
+        function toggleMap(show) {
+            isDelivery = show;
+            const section = document.getElementById('deliverySection');
+            section.classList.toggle('hidden', !show);
+            
+            if(show) {
+                setTimeout(() => map.invalidateSize(), 100);
+                if(currentDist === 0) calculateDistance(); // Kira jarak jika lokasi lalai
+            } else {
+                currentDist = 0;
+                
+            }
+            updatePrice();
+        }
+        
+        function removeItem(inputId) {
+    document.getElementById(inputId).value = 0;
+    updatePrice();
+}
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((p) => {
+                    const pos = [p.coords.latitude, p.coords.longitude];
+                    marker.setLatLng(pos);
+                    map.setView(pos, 16);
+                    calculateDistance();
+                });
+            }
+        }
+
+        function calculateDistance() {
+            const pos = marker.getLatLng();
+            const R = 6371;
+            const dLat = (pos.lat - mcdCoords[0]) * Math.PI / 180;
+            const dLon = (pos.lng - mcdCoords[1]) * Math.PI / 180;
+            const a = Math.sin(dLat/2)**2 + Math.cos(mcdCoords[0]*Math.PI/180)*Math.cos(pos.lat*Math.PI/180)*Math.sin(dLon/2)**2;
+            currentDist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            
+            updatePrice();
+        }
+
+        function updatePrice() {
+            
+            let foodTotal = 0;
+            let summaryHtml = "";
+
+            // Kira total makanan dan bina HTML ringkasan
+            document.querySelectorAll('.qty-input').forEach(input => {
+                let qty = parseInt(input.value) || 0;
+                let price = parseFloat(input.getAttribute('data-price'));
+                let name = input.getAttribute('data-name');
+                
+                if(qty > 0) {
+                    foodTotal += qty * price;
+                    let inputId = input.id; // Dapatkan ID input
+
+summaryHtml += `
+    <div class="flex justify-between items-start py-1 font-medium group">
+        <div class="flex items-center gap-2">
+            <span>${qty}x ${name}</span>
+        </div>
+        <div class="flex items-center gap-3">
+            <span>RM ${(qty * price).toFixed(2)}</span>
+            <button onclick="removeItem('${inputId}')" class="text-red-400 hover:text-red-600 p-1 rounded-full hover:bg-red-50 transition-colors" title="Buang item">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    </div>`;
+                }
+            });
+
+            // Tunjuk/Sembunyi Ringkasan Pesanan
+            const summaryContainer = document.getElementById('summaryContainer');
+            if(foodTotal > 0) {
+                summaryContainer.classList.remove('hidden');
+                document.getElementById('orderList').innerHTML = summaryHtml;
+            } else {
+                summaryContainer.classList.add('hidden');
+            }
+
+            // Kira Caj Penghantaran (Tanpa caj asas, hanya RM0.50/km)
+            let delFee = 0;
+            if (isDelivery) {
+                delFee = Math.ceil(currentDist) * 0.50; 
+            }
+            // KEMASKINI PAPARAN SUBTOTAL
+            document.getElementById('foodTotal').innerText = `RM ${foodTotal.toFixed(2)}`;
+            document.getElementById('delText').innerText = `RM ${delFee.toFixed(2)}`;
+            const finalTotal = foodTotal + delFee;
+            document.getElementById('totalPrice').innerText = `RM ${finalTotal.toFixed(2)}`;
+            
+        }
+
+        function sendOrder() {
+            const name = document.getElementById('custName').value;
+            
+            if(!name) return alert("Sila isi nama!");
+            
+            let pesananText = "";
+            document.querySelectorAll('.qty-input').forEach(input => {
+                let qty = parseInt(input.value) || 0;
+                if(qty > 0) pesananText += `${qty}x ${input.getAttribute('data-name')} - RM${(qty * parseFloat(input.getAttribute('data-price'))).toFixed(2)}\n`;
+            });
+            
+            if(isDelivery && currentDist <= 0) return alert("Sila tetapkan lokasi penghantaran!");
+            if(!pesananText) return alert("Pilih sekurang-kurangnya satu dodol!");
+
+            const totalStr = document.getElementById('totalPrice').innerText;
+            const delFeeStr = document.getElementById('delText').innerText;
+            const remark = document.getElementById('orderRemark').value || "-";
+            const deliveryMode = isDelivery ? "Delivery" : "Self-Pickup";
+            const subtotalStr = document.getElementById('foodTotal').innerText;
+
+            // Kumpul data untuk dihantar ke Google Sheets
+            let formData = new FormData();
+            formData.append('nama', name);
+            formData.append('mode', deliveryMode);
+            formData.append('remark', remark);
+            formData.append('jarak', isDelivery ? currentDist.toFixed(1) + ' km' : '-');
+            
+            // Kuantiti Asing-asing
+            formData.append('qtyMasak500', document.getElementById('dodolMasak500g').value || "0");
+            formData.append('qtyMasak1kg', document.getElementById('dodolMasak1kg').value || "0");
+            formData.append('qtyCair500', document.getElementById('dodolCair500g').value || "0");
+            formData.append('qtyCair1kg', document.getElementById('dodolCair1kg').value || "0");
+            
+            formData.append('cajDelivery', delFeeStr);
+            formData.append('total', totalStr);
+
+            const msg = `*ORDER DODOL ABANG ADIK*\n` +
+                        `Nama: ${name}\n` +
+                        `Delivery/Pickup: ${deliveryMode}\n` +
+                        `Remark: ${remark}\n` +
+                        `Jarak: ${isDelivery ? currentDist.toFixed(1) + 'km' : '-'}\n\n` +
+                        `*RINGKASAN PESANAN:*\n${pesananText}\n` +
+                        `Subtotal: ${subtotalStr}\n` +
+                        `Caj Delivery: ${delFeeStr}\n` +
+                        `*TOTAL KESELURUHAN:* ${totalStr}`;
+
+            // --- PASTE URL GOOGLE APPS SCRIPT ANDA DI SINI ---
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxjvRY_zQ0T0OJY0A-LmFm4Bi1cQqL0pVNvLQtdWc9U0EtheHFn7adRcdPY6NMqew/exec'; 
+
+            // Tukar teks butang supaya pelanggan tahu sistem tengah jalan
+            document.querySelector('button[onclick="sendOrder()"]').innerText = "Memproses...";
+
+            // Hantar data ke Google Sheets, lepas tu baru buka WhatsApp
+            fetch(scriptURL, { method: 'POST', body: formData, mode: 'no-cors' })
+                .then(response => {
+                    document.querySelector('button[onclick="sendOrder()"]').innerText = "Pesan Sekarang";
+                    window.location.href = `https://wa.me/60172865030?text=${encodeURIComponent(msg)}`;
+                })
+                .catch(error => {
+                    alert("Ralat sistem, tapi anda masih boleh teruskan pesanan ke WhatsApp.");
+                    window.location.href = `https://wa.me/60172865030?text=${encodeURIComponent(msg)}`;
+                });
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
