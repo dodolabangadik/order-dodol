@@ -320,11 +320,11 @@ summaryHtml += `
             fetch(scriptURL, { method: 'POST', body: formData, mode: 'no-cors' })
                 .then(response => {
                     document.querySelector('button[onclick="sendOrder()"]').innerText = "Pesan Sekarang";
-                    window.location.href = `https://wa.me/60172865030?text=${encodeURIComponent(msg)}`;
+                    window.location.href = `https://wa.me/60136951510?text=${encodeURIComponent(msg)}`;
                 })
                 .catch(error => {
                     alert("Ralat sistem, tapi anda masih boleh teruskan pesanan ke WhatsApp.");
-                    window.location.href = `https://wa.me/60172865030?text=${encodeURIComponent(msg)}`;
+                    window.location.href = `https://wa.me/60136951510?text=${encodeURIComponent(msg)}`;
                 });
         }
 
