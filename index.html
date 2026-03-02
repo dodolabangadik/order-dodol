@@ -158,7 +158,7 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        let map, marker, currentDist = 0, isDelivery = false;
+        let map, marker, currentDist = 0, isDelivery = false, maplink = "";
         const mcdCoords = [2.744066, 102.236290]; // GANTI LOKASI KEDAI ANDA DI SINI
 
         function initApp() {
@@ -178,6 +178,7 @@
                 if(currentDist === 0) calculateDistance(); // Kira jarak jika lokasi lalai
             } else {
                 currentDist = 0;
+                maplink = "-";
                 
             }
             updatePrice();
@@ -201,6 +202,7 @@
 
         function calculateDistance() {
             const pos = marker.getLatLng();
+            mapLink = `https://www.google.com/maps?q=${pos.lat},${pos.lng}`;
             const R = 6371;
             const dLat = (pos.lat - mcdCoords[0]) * Math.PI / 180;
             const dLon = (pos.lng - mcdCoords[1]) * Math.PI / 180;
@@ -290,6 +292,7 @@ summaryHtml += `
             formData.append('mode', deliveryMode);
             formData.append('remark', remark);
             formData.append('jarak', isDelivery ? currentDist.toFixed(1) + ' km' : '-');
+            formData.append('lokasiPeta', isDelivery ? mapLink : '-');
             
             // Kuantiti Asing-asing
             formData.append('qtyMasak500', document.getElementById('dodolMasak500g').value || "0");
@@ -304,14 +307,15 @@ summaryHtml += `
                         `Nama: ${name}\n` +
                         `Delivery/Pickup: ${deliveryMode}\n` +
                         `Remark: ${remark}\n` +
-                        `Jarak: ${isDelivery ? currentDist.toFixed(1) + 'km' : '-'}\n\n` +
+                        `Jarak: ${isDelivery ? currentDist.toFixed(1) + 'km' : '-'}\n` +
+                        (isDelivery ? `Lokasi Peta: ${mapLink}\n\n` : `\n`) +
                         `*RINGKASAN PESANAN:*\n${pesananText}\n` +
                         `Subtotal: ${subtotalStr}\n` +
                         `Caj Delivery: ${delFeeStr}\n` +
                         `*TOTAL KESELURUHAN:* ${totalStr}`;
 
             // --- PASTE URL GOOGLE APPS SCRIPT ANDA DI SINI ---
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxjvRY_zQ0T0OJY0A-LmFm4Bi1cQqL0pVNvLQtdWc9U0EtheHFn7adRcdPY6NMqew/exec'; 
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbwOzkuPtkCq8siSObZTkfgi9Ll5iTHMdMLxZS2YEBLa6UwhmiTe0SqiD3b0zEiBJyQ/exec'; 
 
             // Tukar teks butang supaya pelanggan tahu sistem tengah jalan
             document.querySelector('button[onclick="sendOrder()"]').innerText = "Memproses...";
